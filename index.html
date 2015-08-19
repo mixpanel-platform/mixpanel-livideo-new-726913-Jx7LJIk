@@ -7,9 +7,256 @@
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
   </head>
   <body class="mixpanel-platform-body">
-    <h1>Hello, World!</h1>
+    <div class="mixpanel-platform-section">
+       <div class="titles">
+        <h1 style="font-size: 18px; color: rgb(95,105,131)">Broadcaster Report</h1>
+        <p style="font-size: 13px; color: rgb(95,105,131)">Please select Broadcaster and a date range. </p><br/>
+      </div>
+      
+      <div id="mpselect" style="float: left;"></div>
+      <div id="dateSelect" style="float: right;"></div><br/><br/><br>
+      <div style="clear: both;"></div>
+    </div>
+    
     <script>
-      // Run queries and display results here
+    MP.api.ready(function () {
+      //setting up dropdowns
+      var options = {
+          items: [
+            {label: 'Select Broadcaster', value: ''},
+            {label: 'Jay-Z', value: 'Jay-Z'},
+            {label: 'Miley Cyrus', value: 'Miley Cyrus'},
+            {label: 'Beyonce', value: 'Beyonce'},
+            {label: 'J-Lo', value: 'J-Lo'},
+            {label: 'Kylie Jenner', value: 'Kylie Jenner'},
+            {label: 'Lebron James', value: 'Lebron James'},
+            {label: 'Danica Patrick', value: 'Danica Patrick'},
+            {label: 'Lil Wayne', value: 'Lil Wayne'},
+            ]
+        };
+      var broadcasterSelect  = $('#mpselect').MPSelect(options);
+      var dateSelect  = $('#dateSelect').MPDatepicker();
+      
+      //convenience method for grabbing that datepicker value
+      getDates = function() {
+        return dateSelect.MPDatepicker('value')
+      };
+      
+      //find interval for bar chart 'interval' param
+      getInterval = function(dates) {
+        intervalDays = Math.ceil((dates.to - dates.from) / (24 * 60 * 60 * 1000)) + 1
+        return intervalDays
+      };
+      
+      
+      var runQuery = function() {
+        //clear out previous content
+        $("div").remove(".graphs");
+        $("h1").remove(".graphs");
+        //obtain broadcaster and date range 
+        var broadcasterName  = broadcasterSelect.MPSelect('value'),
+            dateRange = dateSelect.MPDatepicker('value')
+            
+        //selected broadcaster
+        if (broadcasterName) {
+          var dates = getDates();
+          
+          
+          //////////////played broadcast by top locations//////////////
+          var params =  $.extend({}, dates, {
+            'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"]) and defined (properties[\"$city\"])',
+            'limit': 10,
+          });
+          
+          MP.api.segment('Played Broadcast', '$city', dateRange, params).done(function(resultsOne) {
+            $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">' + broadcasterName + ': Watched Broadcast by Top Location</h1>' ).css({'padding': '10px'}).appendTo('body');
+            
+            $('<div class = "graphs"> </div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
+                chartType: 'map',
+                data: resultsOne
+            });
+            
+             $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '15px'}).appendTo('body').MPTable({
+              showPercentages: true,
+              firstColHeader: 'City',
+              data: resultsOne
+            });
+          });
+          
+          
+          //////////////subscriptions by age range//////////////
+          var params =  $.extend({}, dates, {
+            'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"])',
+            'limit': 10,
+            'interval': getInterval(dates)
+          });
+          
+          MP.api.segment('Played Broadcast', 'Age Range', params).done(function(resultsTwo) {
+            $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">' + broadcasterName + ': Watched Broadcast by Age Group</h1>' ).css({'padding': '10px'}).appendTo('body');
+            
+            $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
+                chartType: 'bar',
+                data: resultsTwo
+            });
+            
+             $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '15px'}).appendTo('body').MPTable({
+              showPercentages: true,
+              firstColHeader: 'Age Group',
+              data: resultsTwo
+            });
+          });
+          
+          
+          //////////////played broadcast over last 96 hours//////////////
+          var params =  $.extend({}, dates, {
+            'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"])',
+            'unit': 'hour',
+            'from': moment().subtract(8, 'days'),
+            'to': moment()
+          });
+          
+          MP.api.segment('Played Broadcast', params).done(function(resultsThree) {
+            $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">' + broadcasterName + ': Watched Broadcast Trend over last 96 hours</h1>' ).css({'padding': '10px'}).appendTo('body');
+            
+            $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
+                chartType: 'line',
+                data: resultsThree
+            });
+            
+             $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '15px'}).appendTo('body').MPTable({
+              showPercentages: true,
+              firstColHeader: 'Event',
+              data: resultsThree
+            });
+          });
+          
+          
+          //////////////played broadcast over selected time period//////////////
+          var params =  $.extend({}, dates, {
+            'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"])',
+            //'interval': getInterval(dates),
+          });
+          
+          MP.api.segment('Played Broadcast', dateRange, params).done(function(resultsFour) {
+            $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">' + broadcasterName + ': Watched Broadcast Trend over selected period</h1>' ).css({'padding': '10px'}).appendTo('body');
+            
+            $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
+                chartType: 'line',
+                data: resultsFour
+            });
+            
+             $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '15px'}).appendTo('body').MPTable({
+              showPercentages: true,
+              firstColHeader: 'Event',
+              data: resultsFour
+            });
+          });
+        
+        
+        //video category 
+        var params =  $.extend({}, dates, {
+          'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"])',
+          'interval': getInterval(dates)
+        });
+          
+        MP.api.segment('Played Broadcast', 'Keyword', params).done(function(resultsFive) {
+          $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">'  + broadcasterName + ': Popular Broadcast Keyword over selected period</h1>' ).css({'padding': '10px'}).appendTo('body');
+            
+          $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
+            chartType: 'bar',
+            data: resultsFive
+          });
+            
+          $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '15px'}).appendTo('body').MPTable({
+            showPercentages: true,
+            firstColHeader: 'Category',
+            data: resultsFive
+          }); 
+        });
+          
+          
+        
+        //////////////who fans also watch//////////////
+        var params =  $.extend({}, dates, {
+          'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"])',
+          'interval': getInterval(dates)
+        });
+          
+        MP.api.segment('Played Broadcast', 'Broadcasters', params).done(function(resultsSix) {
+          $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">'  + broadcasterName + ': Who your fans are also watching</h1>' ).css({'padding': '10px'}).appendTo('body');
+            
+          $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
+            chartType: 'bar',
+            data: resultsSix
+          });
+            
+          $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '15px'}).appendTo('body').MPTable({
+            showPercentages: true,
+            firstColHeader: 'Broadcaster',
+            data: resultsSix
+          }); 
+        });  
+          
+          
+        //////////////average playlength//////////////
+        var output = {};
+        var params =  $.extend({}, dates, {
+          'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"])',
+          'interval': getInterval(dates),
+          'method': 'average'
+        });
+          
+        MP.api.segment('Played Broadcast', 'Length', params).done(function(resultsSeven) {
+          var result = resultsSeven.values();
+          output["Played Broadcast"] = result;
+          
+          $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">'  + broadcasterName + ': Avergage time spent watching stream</h1>' ).css({'padding': '10px'}).appendTo('body');
+            
+          $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
+            chartType: 'line',
+            data: output
+          });
+            
+          $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '15px'}).appendTo('body').MPTable({
+            showPercentages: true,
+            firstColHeader: 'Avergage Time',
+            data: output
+          }); 
+        });  
+          
+          
+        //////////////Total $ of Completed Subscriptions over time//////////////
+        var outputTwo = {};
+        var params =  $.extend({}, dates, {
+          'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"])',
+          'interval': getInterval(dates),
+          'method': 'sum',
+          'on': 'number(properties["Cost"])'
+        });
+          
+        MP.api.segment('Completed Subscription', params).done(function(resultsEight) {
+          var result = resultsEight.values();
+          outputTwo["Played Broadcast"] = result;
+          
+          $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">'  + broadcasterName + ': Total $ of New Subscriptions over time</h1>' ).css({'padding': '10px'}).appendTo('body');
+            
+          $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
+            chartType: 'line',
+            data: outputTwo
+          });
+            
+          $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '15px'}).appendTo('body').MPTable({
+            showPercentages: true,
+            firstColHeader: 'Cost',
+            data: outputTwo
+          }); 
+        });    
+          
+        };
+      };
+      broadcasterSelect.on('change', runQuery);
+      dateSelect.on('change', runQuery);
+    });
     </script>
   </body>
 </html>
