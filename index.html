@@ -64,8 +64,7 @@
           
           //////////////played broadcast by top locations//////////////
           var params =  $.extend({}, dates, {
-            'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"]) and defined (properties[\"$city\"])',
-            'limit': 10,
+            'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"]) and defined (properties[\"$city\"])'          
           });
           
           MP.api.segment('Played Broadcast', 'mp_country_code', dateRange, params).done(function(resultsOne) {
@@ -74,12 +73,6 @@
             $('<div class = "graphs"> </div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
                 chartType: 'map',
                 data: resultsOne
-            });
-            
-             $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '15px'}).appendTo('body').MPTable({
-              showPercentages: true,
-              firstColHeader: 'City',
-              data: resultsOne
             });
           });
           
