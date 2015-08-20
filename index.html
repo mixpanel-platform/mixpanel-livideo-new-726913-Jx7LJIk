@@ -81,10 +81,10 @@
           var params =  $.extend({}, dates, {
             'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"])',
             'limit': 10,
-            'interval': getInterval(dates)
+            //'interval': getInterval(dates)
           });
           
-          MP.api.segment('Played Broadcast', 'Age Range', params).done(function(resultsTwo) {
+          MP.api.segment('Played Broadcast', 'Age Range', dateRange, params).done(function(resultsTwo) {
             $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">' + broadcasterName + ': Watched Broadcast by Age Group</h1>' ).css({'padding': '10px'}).appendTo('body');
             
             $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
