@@ -149,10 +149,10 @@
         //video category 
         var params =  $.extend({}, dates, {
           'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"])',
-          'interval': getInterval(dates)
+          //'interval': getInterval(dates)
         });
           
-        MP.api.segment('Played Broadcast', 'Keyword', params).done(function(resultsFive) {
+        MP.api.segment('Played Broadcast', 'Keyword', daterange, params).done(function(resultsFive) {
           $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">'  + broadcasterName + ': Popular Broadcast Keyword over selected period</h1>' ).css({'padding': '10px'}).appendTo('body');
             
           $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
@@ -172,10 +172,10 @@
         //////////////who fans also watch//////////////
         var params =  $.extend({}, dates, {
           'where': '\"' + broadcasterName + '\" in string(properties[\"Broadcaster\"])',
-          'interval': getInterval(dates)
+          // 'interval': getInterval(dates)
         });
           
-        MP.api.segment('Played Broadcast', 'Broadcasters', params).done(function(resultsSix) {
+        MP.api.segment('Played Broadcast', 'Broadcasters', dateRange, params).done(function(resultsSix) {
           $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">'  + broadcasterName + ': Who your fans are also watching</h1>' ).css({'padding': '10px'}).appendTo('body');
             
           $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
