@@ -152,7 +152,7 @@
           //'interval': getInterval(dates)
         });
           
-        MP.api.segment('Played Broadcast', 'Keyword', daterange, params).done(function(resultsFive) {
+        MP.api.segment('Played Broadcast', 'Keyword', dateRange, params).done(function(resultsFive) {
           $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">'  + broadcasterName + ': Popular Broadcast Keyword over selected period</h1>' ).css({'padding': '10px'}).appendTo('body');
             
           $('<div class = "graphs"></div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
