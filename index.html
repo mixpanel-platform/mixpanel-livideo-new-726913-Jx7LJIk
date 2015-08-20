@@ -68,7 +68,7 @@
             'limit': 10,
           });
           
-          MP.api.segment('Played Broadcast', '$city', dateRange, params).done(function(resultsOne) {
+          MP.api.segment('Played Broadcast', 'mp_country_code', dateRange, params).done(function(resultsOne) {
             $('<h1 class = "graphs" style="font-size: 15px; color: rgb(95,105,131)">' + broadcasterName + ': Watched Broadcast by Top Location</h1>' ).css({'padding': '10px'}).appendTo('body');
             
             $('<div class = "graphs"> </div>').css({'width':'100%', 'float':'left', 'padding': '10px'}).appendTo('body').MPChart({
